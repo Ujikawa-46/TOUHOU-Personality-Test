@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>东方角色八维九型匹配库</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui, sans-serif;}
+body{max-width:1200px;margin:16px auto;padding:0 12px;background:#f7f7f7;color:#222;}
+.card{background:#fff;padding:14px;border-radius:10px;margin:12px 0;border:1px #ddd solid;}
+.flex-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input,textarea,select{padding:8px;border:1px #aaa solid;border-radius:6px;font-size:14px;}
+button{padding:9px 14px;border:none;border-radius:7px;background:#3377dd;color:#fff;cursor:pointer;}
+button.sec{background:#777;}
+button.danger{background:#dd4444;}
+table{border-collapse:collapse;width:100%;font-size:13px;}
+th,td{border:1px #ccc solid;padding:7px;}
+th{background:#eee;}
+textarea{width:100%;min-height:140px;}
+.hint{color:#555;font-size:13px;}
+.badge{display:inline-block;padding:3px 7px;border-radius:99px;background:#e8edff;margin:2px;font-size:12px;}
+.tab{display:inline-block;padding:10px 14px;background:#eee;cursor:pointer;border-radius:8px 8px 0 0;margin-right:4px;}
+.tab.active{background:#3377dd;color:#fff;}
+.tab-content{display:none;}
+.tab-content.show{display:block;}
+</style>
+</head>
+<body>
+<h2>东方角色｜八维&九型基准库 + 匹配计算器</h2>
+<p class="hint">规则：权重 八维0.65｜九型0.35；相似度仅作平局破局，内核顺序人工优先；数据存在浏览器本地</p>
+
+<div class="tab-group">
+<div class="tab active" data-tab="db">角色库</div>
+<div class="tab" data-tab="test">答卷录入 & 匹配</div>
+<div class="tab" data-tab="import">导入导出JSON</div>
+</div>
+
+<div id="db" class="tab-content show">
+<div class="card">
+<h4>新增 / 编辑角色</h4>
+<div class="flex-row">
+<input id="cName" placeholder="角色名">
+<input id="cMbti" placeholder="MBTI，如INFP">
+<input id="cEnnea" placeholder="九型，如4w5">
+<input id="cTritype" placeholder="Tritype，如4-6-9">
+</div>
+<div class="flex-row" style="margin-top:8px;">
+<input id="vecFi" placeholder="Fi" type="number" step="0.1">
+<input id="vecNe" placeholder="Ne" type="number" step="0.1">
+<input id="vecFe" placeholder="Fe" type="number" step="0.1">
+<input id="vecTi" placeholder="Ti" type="number" step="0.1">
+<input id="vecSe" placeholder="Se" type="number" step="0.1">
+<input id="vecNi" placeholder="Ni" type="number" step="0.1">
+<input id="vecSi" placeholder="Si" type="number" step="0.1">
+<input id="vecTe" placeholder="Te" type="number" step="0.1">
+</div>
+<div class="flex-row" style="margin-top:8px;">
+<input id="e1" placeholder="1" type="number" step="0.1">
+<input id="e2" placeholder="2" type="number" step="0.1">
+<input id="e3" placeholder="3" type="number" step="0.1">
+<input id="e4" placeholder="4" type="number" step="0.1">
+<input id="e5" placeholder="5" type="number" step="0.1">
+<input id="e6" placeholder="6" type="number" step="0.1">
+<input id="e7" placeholder="7" type="number" step="0.1">
+<input id="e8" placeholder="8" type="number" step="0.1">
+<input id="e9" placeholder="9" type="number" step="0.1">
+</div>
+<textarea id="cNote" placeholder="推断备注"></textarea>
+<div class="flex-row" style="margin-top:8px;">
+<button onclick="saveChar()">保存角色</button>
+<button class="sec" onclick="clearForm()">清空表单</button>
+</div>
+</div>
+<div class="card">
+<h4>角色列表（点击行加载到编辑框）</h4>
+<div id="charTableWrap"></div>
+</div>
+</div>
+
+<div id="test" class="tab-content">
+<div class="card">
+<h4>录入答卷向量</h4>
+<div class="flex-row">
+<input id="tFi" placeholder="Fi" type="number" step="0.1">
+<input id="tNe" placeholder="Ne" type="number" step="0.1">
+<input id="tFe" placeholder="Fe" type="number" step="0.1">
+<input id="tTi" placeholder="Ti" type="number" step="0.1">
+<input id="tSe" placeholder="Se" type="number" step="0.1">
+<input id="tNi" placeholder="Ni" type="number" step="0.1">
+<input id="tSi" placeholder="Si" type="number" step="0.1">
+<input id="tTe" placeholder="Te" type="number" step="0.1">
+</div>
+<div class="flex-row" style="margin-top:8px;">
+<input id="te1" placeholder="1" type="number" step="0.1">
+<input id="te2" placeholder="2" type="number" step="0.1">
+<input id="te3" placeholder="3" type="number" step="0.1">
+<input id="te4" placeholder="4" type="number" step="0.1">
+<input id="te5" placeholder="5" type="number" step="0.1">
+<input id="te6" placeholder="6" type="number" step="0.1">
+<input id="te7" placeholder="7" type="number" step="0.1">
+<input id="te8" placeholder="8" type="number" step="0.1">
+<input id="te9" placeholder="9" type="number" step="0.1">
+</div>
+<div class="flex-row" style="margin-top:10px;">
+<button onclick="calcMatch()">计算相似度 & 排名</button>
+</div>
+</div>
+<div class="card">
+<h4>匹配结果（综合余弦分数）</h4>
+<div id="resultWrap"></div>
+</div>
+</div>
+
+<div id="import" class="tab-content">
+<div class="card">
+<h4>导入/导出全部角色JSON</h4>
+<textarea id="jsonBox"></textarea>
+<div class="flex-row" style="margin-top:8px;">
+<button onclick="exportJson()">导出JSON</button>
+<button class="sec" onclick="importJson()">导入JSON（覆盖当前库！）</button>
+<button class="danger" onclick="resetDB()">重置为初始定稿库</button>
+</div>
+<p class="hint">导出的JSON可以本地存，换设备的时候导入；重置会清空你新增的角色，回到我们这15个基准角色</p>
+</div>
+</div>
+
+<script>
+// ===================== 配置
+const W_FUNC = 0.65;
+const W_ENNEA = 0.35;
+const KEY_STORAGE = "touhou_char_db_v1";
+
+// 初始定稿角色库（我们前面15个，修正后的版本，村纱水蜜 INFP、古明地觉 INFJ）
+const INIT_DB = [
+{"name":"玛艾露贝莉·赫恩（梅莉）","mbti":"INFP","ennea":"4w5","tritype":"4-6-9","func":[10,7,2,4,1,4,2,1],"enneaVec":[0,1,0,10,1,4,0,0,1],"note":"Fi主导，沉浸主观感受与梦境体验；Ne强，探索虚实边界；Ti、Ni有分数思辨梦境；Fe偏低，Se/Si/Te弱。九型4珍视独特梦境体验，侧翼5向内体会，6对未知不安，9回避冲突。"},
+{"name":"秦心","mbti":"INFP","ennea":"4w5","tritype":"4-9-6","func":[10,7,4,2,1,2,2,1],"enneaVec":[0,1,0,10,1,1,0,0,4],"note":"Fi主导，追寻本心；Ne强，尝试面具体验情绪；Fe=4是模仿情绪而非原生共情；Ni偏弱，试错摸索；其余功能偏弱。九型4恐惧空洞无自我，侧翼5观察模仿学习，9回避冲突，6持续怀疑自我。"},
+{"name":"依神紫苑","mbti":"INFP","ennea":"4w5","tritype":"4-9-6","func":[10,4,2,2,2,2,4,1],"enneaVec":[0,1,0,10,1,1,0,0,4],"note":"Fi主导，压抑敏感承受不幸；Ne偏弱，Si偏高反复沉浸不幸旧体验；其余弱，被动承受命运。九型4自卑，觉得自己特殊不幸；侧翼5独自消化情绪，9认命躺平，6害怕被嫌弃抛弃。"},
+{"name":"水桥帕露西","mbti":"ISFP","ennea":"4w5","tritype":"4-6-9","func":[10,2,2,2,7,2,2,1],"enneaVec":[0,1,0,10,1,4,0,0,1],"note":"Fi主导，敏感自尊；Se辅助，感知当下氛围，嫉妒来自亲眼所见；Ne低，其余弱。九型4渴望被看见，恐惧不被重视；侧翼5独自咀嚼委屈，6猜忌怕受伤，9不愿正面爆发。"},
+{"name":"露米娅","mbti":"ISFP","ennea":"4w5","tritype":"4-6-9","func":[10,1,1,2,7,2,2,1],"enneaVec":[0,1,0,10,1,4,0,0,1],"note":"Fi主导，遵从本能喜好；Se辅助活在当下凭本能；Ne极低，Fe弱不在意他人感受。九型4孤僻疏离，侧翼5习惯独处，6对外戒备，9懒散不爱争执。"},
+{"name":"古明地恋","mbti":"INFP","ennea":"9w8","tritype":"9-6-4","func":[10,7,6,2,3,2,1,1],"enneaVec":[0,1,0,1,1,4,4,4,10],"note":"Fi主导，遵从内心喜好；Ne强好奇心旺盛；Fe中等待人温和；Se中等，Ti/Ni/Si/Te低。九型9向往平和讨厌冲突，侧翼8被逼时直率，6需要安心环境，4害怕变得无趣。"},
+{"name":"博丽灵梦","mbti":"ISFP","ennea":"9w8","tritype":"9-6-2","func":[10,3,2,4,7,2,3,1],"enneaVec":[0,1,0,1,1,4,1,4,10],"note":"Fi主导，自有随性原则；Se辅助临场战斗直觉；Ti少量权衡利弊，Si中等习惯神社日常。九型9希望省事安稳，侧翼8底线强硬，6警惕异变，2偶尔维护幻想乡平衡。"},
+{"name":"藤原妹红","mbti":"ISFP","ennea":"6w5","tritype":"6-8-4","func":[10,3,2,4,7,3,2,3],"enneaVec":[0,1,0,4,4,10,1,4,1],"note":"Fi主导爱恨强烈；Se辅助擅长生存战斗；Ti少量思考自保，Ni对宿命有感触。九型6长期漂泊警惕威胁，侧翼5独自思索隐藏，8求生敢对抗，4孤独隔绝。"},
+{"name":"芙兰朵露·斯卡雷特","mbti":"INFP","ennea":"7w6","tritype":"4-7-9","func":[10,6,2,3,4,2,1,1],"enneaVec":[0,1,0,4,1,1,10,0,1],"note":"Fi主导好恶直白；Ne天马行空；Fe低，难以理解他人恐惧；Se中等喜欢玩耍刺激。九型7追求有趣害怕被困，侧翼6依赖姐姐、对外戒备，4禁闭孤独，9不喜高压对峙。"},
+{"name":"西行寺幽幽子","mbti":"INFP","ennea":"9w1","tritype":"9-4-5","func":[10,6,5,2,2,4,2,1],"enneaVec":[4,1,0,4,4,1,1,0,10],"note":"Fi主导，遵从死亡与凋零美感；Ne活跃幻想诗意画面；Fe温和松弛；Ni感悟生死。九型9向往安宁，侧翼1追求美感恰当，4迷恋转瞬凋零之美，5远距离旁观生死。"},
+{"name":"古明地觉","mbti":"INFJ","ennea":"5w4","tritype":"5-4-6","func":[4,3,7,2,2,10,2,3],"enneaVec":[1,1,0,4,10,4,1,0,1],"note":"Ni主导，直击人心底层秘密情绪；Fe辅助读取情绪氛围，但惧怕被他人思绪淹没；Fi有边界好恶。九型5需要精神距离、隐私，侧翼4因能力被孤立，6警惕人心恶意。"},
+{"name":"十六夜咲夜","mbti":"ISTJ","ennea":"1w6","tritype":"1-6-2","func":[2,2,4,6,3,2,10,7],"enneaVec":[10,4,1,1,1,4,0,1,1],"note":"Si主导恪守流程经验；Te辅助高效管理红魔馆；Ti调试时停方案，Fe得体照顾众人。九型1追求秩序完美、自责失误，侧翼6守护红魔馆，2习惯性承担照顾责任。"},
+{"name":"帕秋莉·诺蕾姬","mbti":"INTP","ennea":"5w6","tritype":"5-6-4","func":[2,7,2,10,1,6,4,3],"enneaVec":[1,1,0,2,10,4,1,0,1],"note":"Ti主导钻研魔法理论体系；Ne发掘魔法可能性；Ni理解奥义，Si积累典籍；Se极弱。九型5沉浸书本独处研究，侧翼6谨慎魔法风险，4体弱封闭带来疏离。"},
+{"name":"本居小铃","mbti":"ENFP","ennea":"7w6","tritype":"7-4-6","func":[6,10,7,3,3,2,2,2],"enneaVec":[1,2,1,4,2,4,10,1,2],"note":"Ne主导痴迷收集奇闻传说；Fi有故事品味；Fe乐于分享；Ti弱，不擅长严谨考据。九型7喜欢新鲜传说厌恶枯燥，侧翼6担心古籍损毁，4偏爱小众失传故事。"},
+{"name":"村纱水蜜","mbti":"INFP","ennea":"6w7","tritype":"6-7-9","func":[10,7,5,2,3,3,2,1],"enneaVec":[1,2,1,2,1,10,4,1,4],"note":"Fi主导坚守船幽灵的执念；Ne活跃想象漂泊与归处；Fe愿意收留漂泊亡灵；Ni对归宿有感触。九型6漂泊不安渴求归属，侧翼7向往自由航行，9希望同伴和睦无争斗。"}
+];
+
+// 向量余弦计算
+function cosine(a,b){
+    let dot=0,ma=0,mb=0;
+    for(let i=0;i<a.length;i++){dot+=a[i]*b[i];ma+=a[i]*a[i];mb+=b[i]*b[i];}
+    if(ma===0||mb===0)return 0;
+    return dot/(Math.sqrt(ma)*Math.sqrt(mb));
+}
+
+// tab切换
+document.querySelectorAll(".tab").forEach(t=>{
+    t.onclick=()=>{
+        document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(x=>x.classList.remove("show"));
+        t.classList.add("active");
+        document.getElementById(t.dataset.tab).classList.add("show");
+    }
+})
+
+// 本地存储读写
+function loadDB(){
+    const raw=localStorage.getItem(KEY_STORAGE);
+    if(raw) return JSON.parse(raw);
+    return JSON.parse(JSON.stringify(INIT_DB));
+}
+function saveDB(db){
+    localStorage.setItem(KEY_STORAGE,JSON.stringify(db));
+}
+let charDB=loadDB();
+
+// 渲染角色表格
+function renderTable(){
+    const wrap=document.getElementById("charTableWrap");
+    let html="<table><thead><tr><th>名字</th><th>MBTI</th><th>九型</th><th>Tritype</th><th>操作</th></tr></thead><tbody>";
+    charDB.forEach((c,idx)=>{
+        html+=`<tr onclick="loadToForm(${idx})">
+        <td>${c.name}</td><td>${c.mbti}</td><td>${c.ennea}</td><td>${c.tritype}</td>
+        <td><button class="danger" onclick="delChar(event,${idx})">删除</button></td>
+        </tr>`
+    })
+    html+="</tbody></table>";
+    wrap.innerHTML=html;
+}
+
+// 表单操作
+function loadToForm(idx){
+    const c=charDB[idx];
+    document.getElementById("cName").value=c.name;
+    document.getElementById("cMbti").value=c.mbti;
+    document.getElementById("cEnnea").value=c.ennea;
+    document.getElementById("cTritype").value=c.tritype;
+    const f=c.func;
+    document.getElementById("vecFi").value=f[0];
+    document.getElementById("vecNe").value=f[1];
+    document.getElementById("vecFe").value=f[2];
+    document.getElementById("vecTi").value=f[3];
+    document.getElementById("vecSe").value=f[4];
+    document.getElementById("vecNi").value=f[5];
+    document.getElementById("vecSi").value=f[6];
+    document.getElementById("vecTe").value=f[7];
+    const e=c.enneaVec;
+    document.getElementById("e1").value=e[0];
+    document.getElementById("e2").value=e[1];
+    document.getElementById("e3").value=e[2];
+    document.getElementById("e4").value=e[3];
+    document.getElementById("e5").value=e[4];
+    document.getElementById("e6").value=e[5];
+    document.getElementById("e7").value=e[6];
+    document.getElementById("e8").value=e[7];
+    document.getElementById("e9").value=e[8];
+    document.getElementById("cNote").value=c.note;
+}
+function clearForm(){
+    document.querySelectorAll("#db input,#db textarea").forEach(x=>x.value="");
+}
+function saveChar(){
+    const name=document.getElementById("cName").value.trim();
+    if(!name)return alert("角色名不能为空");
+    const newChar={
+        name,
+        mbti:document.getElementById("cMbti").value.trim(),
+        ennea:document.getElementById("cEnnea").value.trim(),
+        tritype:document.getElementById("cTritype").value.trim(),
+        func:[
+            +document.getElementById("vecFi").value||0,
+            +document.getElementById("vecNe").value||0,
+            +document.getElementById("vecFe").value||0,
+            +document.getElementById("vecTi").value||0,
+            +document.getElementById("vecSe").value||0,
+            +document.getElementById("vecNi").value||0,
+            +document.getElementById("vecSi").value||0,
+            +document.getElementById("vecTe").value||0,
+        ],
+        enneaVec:[
+            +document.getElementById("e1").value||0,
+            +document.getElementById("e2").value||0,
+            +document.getElementById("e3").value||0,
+            +document.getElementById("e4").value||0,
+            +document.getElementById("e5").value||0,
+            +document.getElementById("e6").value||0,
+            +document.getElementById("e7").value||0,
+            +document.getElementById("e8").value||0,
+            +document.getElementById("e9").value||0,
+        ],
+        note:document.getElementById("cNote").value.trim()
+    };
+    // 查找同名覆盖，否则新增
+    let found=false;
+    for(let i=0;i<charDB.length;i++){
+        if(charDB[i].name===name){charDB[i]=newChar;found=true;break;}
+    }
+    if(!found) charDB.push(newChar);
+    saveDB(charDB);
+    renderTable();
+    alert("保存成功！");
+}
+function delChar(ev,idx){
+    ev.stopPropagation();
+    if(!confirm("确定删除这个角色？"))return;
+    charDB.splice(idx,1);
+    saveDB(charDB);
+    renderTable();
+}
+
+// 匹配计算
+function calcMatch(){
+    const tFunc=[
+        +document.getElementById("tFi").value||0,
+        +document.getElementById("tNe").value||0,
+        +document.getElementById("tFe").value||0,
+        +document.getElementById("tTi").value||0,
+        +document.getElementById("tSe").value||0,
+        +document.getElementById("tNi").value||0,
+        +document.getElementById("tSi").value||0,
+        +document.getElementById("tTe").value||0,
+    ];
+    const tEnnea=[
+        +document.getElementById("te1").value||0,
+        +document.getElementById("te2").value||0,
+        +document.getElementById("te3").value||0,
+        +document.getElementById("te4").value||0,
+        +document.getElementById("te5").value||0,
+        +document.getElementById("te6").value||0,
+        +document.getElementById("te7").value||0,
+        +document.getElementById("te8").value||0,
+        +document.getElementById("te9").value||0,
+    ];
+    const list=charDB.map(c=>{
+        const cFunc=c.func;
+        const cEnn=c.enneaVec;
+        const simF=cosine(tFunc,cFunc);
+        const simE=cosine(tEnn,cEnn);
+        const total= simF*W_FUNC + simE*W_ENNEA;
+        return {...c,simFunc:simF.toFixed(4),simEnnea:simE.toFixed(4),score:total.toFixed(4)}
+    })
+    list.sort((a,b)=>Number(b.score)-Number(a.score));
+    let html="<table><tr><th>排名</th><th>角色</th><th>MBTI</th><th>九型</th><th>综合分数</th><th>八维余弦</th><th>九型余弦</th></tr>";
+    list.forEach((it,i)=>{
+        html+=`<tr>
+        <td>${i+1}</td>
+        <td>${it.name}</td>
+        <td>${it.mbti}</td>
+        <td>${it.ennea}</td>
+        <td><b>${it.score}</b></td>
+        <td>${it.simFunc}</td>
+        <td>${it.simEnnea}</td>
+        </tr>`
+    })
+    html+="</table><p class='hint'>⚠️ 分数仅平局破局，人工内核优先级更高</p>";
+    document.getElementById("resultWrap").innerHTML=html;
+}
+
+// 导入导出
+function exportJson(){
+    document.getElementById("jsonBox").value=JSON.stringify(charDB,null,2);
+}
+function importJson(){
+    const txt=document.getElementById("jsonBox").value;
+    try{
+        const d=JSON.parse(txt);
+        if(!Array.isArray(d))return alert("必须是角色数组JSON！");
+        charDB=d;
+        saveDB(charDB);
+        renderTable();
+        alert("导入成功");
+    }catch(e){alert("JSON格式错误："+e.message)}
+}
+function resetDB(){
+    if(!confirm("确认重置？你新增修改的角色会全部丢失，回到初始15个定稿角色！"))return;
+    charDB=JSON.parse(JSON.stringify(INIT_DB));
+    saveDB(charDB);
+    renderTable();
+    alert("重置完成");
+}
+
+// 初始化
+renderTable();
+</script>
+</body>
+</html>
